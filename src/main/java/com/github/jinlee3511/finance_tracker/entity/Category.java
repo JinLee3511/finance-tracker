@@ -18,7 +18,6 @@ Used Protected to not allow default constructor outside the package..
  */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // DB creates the ID automatically (AUTO_INCREMENT)
     private Long id;
