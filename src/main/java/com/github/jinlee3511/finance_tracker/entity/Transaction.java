@@ -37,9 +37,8 @@ public class Transaction {
     private String description;
 
 
-    // Force category & transaction type & amount & date to exist
     public Transaction(Category category, TransactionType transactionType,
-                       BigDecimal amount, LocalDate transactionDate) {
+                       BigDecimal amount, LocalDate transactionDate, String description) {
         validateCategory(category);
         validateAmount(amount);
         validateTransactionType(transactionType);
@@ -49,10 +48,25 @@ public class Transaction {
         this.transactionType = transactionType;
         this.amount = amount;
         this.transactionDate = transactionDate;
+        this.description = description;
     }
 
     public void changeDescription(String description) {
         validateDescription(description);
+        this.description = description;
+    }
+
+    public void updateTransaction(Category category, BigDecimal amount, TransactionType transactionType,
+                                  LocalDate transactionDate, String description) {
+        validateCategory(category);
+        validateAmount(amount);
+        validateTransactionType(transactionType);
+        validateTransactionDate(transactionDate);
+
+        this.category = category;
+        this.transactionType = transactionType;
+        this.amount = amount;
+        this.transactionDate = transactionDate;
         this.description = description;
     }
 
