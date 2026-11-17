@@ -10,13 +10,15 @@ import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByTransactionDate(LocalDate localDate);
-    List<Transaction> findByTransactionDateBetween(LocalDate startDate, LocalDate endDate);
     List<Transaction> findByTransactionDateBetweenOrderByTransactionDateDesc(LocalDate startDate,
                                                                                     LocalDate endDate);
-    List<Transaction> findByTransactionDateAndTransactionType(LocalDate localDate,
+    List<Transaction> findByTransactionDateAndTransactionTypeOrderByTransactionDateDesc(LocalDate localDate,
                                                                      TransactionType transactionType);
+    List<Transaction> findByTransactionDateGreaterThanEqualOrderByTransactionDateDesc(LocalDate date);
+    List<Transaction> findByTransactionDateLessThanEqualOrderByTransactionDateDesc(LocalDate date);
 
     List<Transaction> findByCategory(Long categoryId);
-    List<Transaction> findByCategoryAndTransactionDate(Category category, LocalDate localDate);
+    List<Transaction> findByCategoryAndTransactionDateOrderByTransactionDateDesc(Category category, LocalDate startDate,
+                                                       LocalDate endDate);
 
 }

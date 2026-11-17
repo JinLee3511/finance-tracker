@@ -4,6 +4,7 @@ import com.github.jinlee3511.finance_tracker.dto.CategoryRequest;
 import com.github.jinlee3511.finance_tracker.dto.CategoryResponse;
 import com.github.jinlee3511.finance_tracker.service.CategoryService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,14 +45,14 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public CategoryResponse renameCategory(@PathVariable Long id,
+    public CategoryResponse renameCategory(@PathVariable @Positive Long id,
                                                            @RequestBody @Valid CategoryRequest categoryRequest) {
         categoryService.renameCategory(id, categoryRequest.name());
         return CategoryResponse.from(categoryService.getCategoryById(id)); // automatically 200
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable @Positive Long id) {
         categoryService.deleteCategoryById(id);
         return ResponseEntity.noContent().build(); // 204, no body
     }

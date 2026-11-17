@@ -56,7 +56,7 @@ public class CategoryService {
 
         category.changeName(name);
         // with @Transactional, JPA auto checks the Entity status and if something changes
-        // -> it UPDATES with out save (DIRTY CHECKING)
+        // -> it UPDATES without save (DIRTY CHECKING)
         // categoryRepository.save(category);
     }
 

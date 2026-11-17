@@ -6,6 +6,7 @@ import com.github.jinlee3511.finance_tracker.entity.TransactionType;
 import com.github.jinlee3511.finance_tracker.exception.TransactionNotFoundException;
 import com.github.jinlee3511.finance_tracker.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,11 +32,6 @@ public class TransactionService {
         return transaction.getId();
     }
 
-    // Select All
-    public List<Transaction> getAllTransaction() {
-        return transactionRepository.findAll();
-    }
-
     // Select By Id
     public Transaction getTransactionById(Long id) {
         return transactionRepository.findById(id)
@@ -43,16 +39,21 @@ public class TransactionService {
     }
 
     // Select By Dates
-    public List<Transaction> getTransactionsByDates(LocalDate localDate) {
-        return transactionRepository.findByTransactionDate(localDate);
-    }
+    public List<Transaction> getTransactionsByDate(LocalDate startDate, LocalDate endDate) {
 
-    public List<Transaction> getTransactionsByDatesInBetween(LocalDate start, LocalDate end) {
-        return transactionRepository.findByTransactionDateBetween(start, end);
-    }
+        if (startDate == null && endDate == null) {
+            return transactionRepository.findAll(Sort.by(Sort.Direction.DESC, "transactionDate"));
+        }
 
-    public List<Transaction> getTransactionsByDatesInBetweenLastOrder(LocalDate start, LocalDate end) {
-        return transactionRepository.findByTransactionDateBetweenOrderByTransactionDateDesc(start, end);
+        if (endDate == null) {
+            return transactionRepository.findByTransactionDateGreaterThanEqualOrderByTransactionDateDesc(startDate);
+        }
+
+        if (startDate == null) {
+            return transactionRepository.findByTransactionDateLessThanEqualOrderByTransactionDateDesc(endDate);
+        }
+
+        return transactionRepository.findByTransactionDateBetweenOrderByTransactionDateDesc(startDate, endDate);
     }
 
     // Modify Transaction
