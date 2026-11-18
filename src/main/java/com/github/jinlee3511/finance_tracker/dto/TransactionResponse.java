@@ -1,6 +1,5 @@
 package com.github.jinlee3511.finance_tracker.dto;
 
-import com.github.jinlee3511.finance_tracker.entity.Category;
 import com.github.jinlee3511.finance_tracker.entity.Transaction;
 import com.github.jinlee3511.finance_tracker.entity.TransactionType;
 
@@ -9,7 +8,7 @@ import java.time.LocalDate;
 
 public record TransactionResponse(
     Long id,
-    Long categoryId, // do not return Category itself, LAZY exception
+    Long categoryId, // do not return Category itself, LAZY exception (DB Session already closed..)
     BigDecimal amount,
     TransactionType transactionType,
     LocalDate transactionDate,
