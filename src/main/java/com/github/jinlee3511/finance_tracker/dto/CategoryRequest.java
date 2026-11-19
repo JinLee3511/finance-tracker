@@ -1,6 +1,7 @@
 package com.github.jinlee3511.finance_tracker.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public record CategoryRequest(

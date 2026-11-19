@@ -20,7 +20,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/{id}")
-    public CategoryResponse getCategory(@PathVariable Long id) {
+    public CategoryResponse getCategory(@PathVariable @Positive Long id) {
         // CategoryNotFoundException is not caught here
         // -> handled globally in @RestControllerAdvice (404)
         return CategoryResponse.from(categoryService.getCategoryById(id));
