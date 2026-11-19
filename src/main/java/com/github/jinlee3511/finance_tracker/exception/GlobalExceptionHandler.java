@@ -37,7 +37,9 @@ public class GlobalExceptionHandler {
                         "Request Conflicts with existing data"));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class) // DTO @Valid Failure
+    // DTO @Valid Failure
+    // - only check body, mix with body & param/path error checked via HandlerMethodValidationException
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors()
                 .stream()
