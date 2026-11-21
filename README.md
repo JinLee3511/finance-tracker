@@ -5,6 +5,7 @@ A personal project to track income and expenses.
 Built with Spring Boot and MySQL. Transactions (income or expense) are recorded and
 grouped into categories, so spending can be reviewed over time.
 
+
 ## Run
 
 1. Create a MySQL database named `finance_tracker`.
