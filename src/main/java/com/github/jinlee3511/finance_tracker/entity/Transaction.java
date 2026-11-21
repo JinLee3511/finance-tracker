@@ -52,7 +52,6 @@ public class Transaction {
     }
 
     public void changeDescription(String description) {
-        validateDescription(description);
         this.description = description;
     }
 

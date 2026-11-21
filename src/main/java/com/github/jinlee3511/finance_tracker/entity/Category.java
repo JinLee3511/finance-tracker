@@ -28,17 +28,22 @@ public class Category {
     // In order to force input NAME field..
     public Category(String name) {
         validateName(name);
-        this.name = name;
+        this.name = convertNameFormat(name);
     }
 
     public void changeName(String name) {
         validateName(name);
-        this.name = name;
+        this.name = convertNameFormat(name);
     }
 
     private void validateName(String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Name Cannot be empty");
         }
+    }
+
+    private String convertNameFormat(String name) {
+        String stripped = name.strip();
+        return stripped.substring(0, 1).toUpperCase() + stripped.substring(1).toLowerCase();
     }
 }
