@@ -20,10 +20,12 @@ public class CategoryService {
     // 1. Create
     @Transactional // Entire service is readOnly, make sure this method is allowed with INSERT
     public Long createCategory(String name) {
+        name = name.strip();
+
         // If called simultaneously, both may pass this check,
         // but the UNIQUE constraint on name (DB side) will block the second insert
         // -> DataIntegrityViolationException, handled in global exception handler (@RestControllerAdvice)
-        if (categoryRepository.existsByName(name)) {
+        if (categoryRepository.existsByNameIgnoreCase(name)) {
             // do not return, raise error so that Controller can catch and throw 409 (conflict)
             // ALWAYS Runtime Exception!! -> rolls back commit, but Exception commits..
             throw new DuplicateCategoryException("Category Already Exists: " + name);
@@ -49,8 +51,9 @@ public class CategoryService {
     @Transactional
     public void renameCategory(Long id, String name) {
         Category category = getCategoryById(id); // select query happens, not lazy loading. All fields available this time
+        name = name.strip();
 
-        if (!category.getName().equals(name) && categoryRepository.existsByName(name)) {
+        if (!category.getName().equalsIgnoreCase(name) && categoryRepository.existsByNameIgnoreCase(name)) {
             throw new DuplicateCategoryException("Category Already Exists: " + name);
         }
 
