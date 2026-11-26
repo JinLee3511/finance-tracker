@@ -4,6 +4,7 @@ import com.github.jinlee3511.finance_tracker.entity.Category;
 import com.github.jinlee3511.finance_tracker.entity.Transaction;
 import com.github.jinlee3511.finance_tracker.entity.TransactionType;
 import com.github.jinlee3511.finance_tracker.exception.CategoryNotFoundException;
+import com.github.jinlee3511.finance_tracker.exception.TransactionNotFoundException;
 import com.github.jinlee3511.finance_tracker.repository.TransactionRepository;
 
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
@@ -74,5 +79,41 @@ public class TransactionServiceTest {
         assertThat(saved.getDescription()).isEqualTo("Lunch");
         assertThat(saved.getAmount()).isEqualByComparingTo(new BigDecimal("100.25")); // compareTo() == 0
         // compareTo is method from Comparable interface..
+    }
+
+    @Test
+    void getTransactionById_whenIdNotExists_throwsNotFound() {
+        // given
+        // Note: Cannot set stub for testing item (transactionService in this case) -> it is a real service not a mock!
+        // when(transactionService.getTransactionById(1L)).thenThrow(TransactionNotFoundException.class);
+
+        when(transactionRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> transactionService.getTransactionById(1L))
+                .isInstanceOf(TransactionNotFoundException.class)
+                .hasMessage("Transaction Not Found: " + 1L);
+    }
+
+    @Test
+    void getTransactionsByDate_whenBothDatesNull_returnsAllSortedByDateDesc() {
+        // given
+        Category category = new Category("Food");
+        Transaction transaction1 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 26), "tsx1");
+        Transaction transaction2 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 27), "tsx2");
+        List<Transaction> transactionTests = List.of(transaction2, transaction1);
+
+
+        when(transactionRepository.findAll(Sort.by(Sort.Direction.DESC, "transactionDate")))
+                .thenReturn(transactionTests);
+
+        // when
+        List<Transaction> transactionList = transactionService.getTransactionsByDate(null, null);
+
+        // then
+        assertThat(transactionList).containsExactly(transaction2, transaction1);
+        verifyNoMoreInteractions(transactionRepository); // check if other methods were called except the stub
     }
 }
