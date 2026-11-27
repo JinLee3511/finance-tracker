@@ -17,7 +17,6 @@ import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,5 +114,112 @@ public class TransactionServiceTest {
         // then
         assertThat(transactionList).containsExactly(transaction2, transaction1);
         verifyNoMoreInteractions(transactionRepository); // check if other methods were called except the stub
+    }
+
+    @Test
+    void getTransactionByDate_whenEndDateNull_returnsTransactionsFromStartDate() {
+        // given
+        Category category = new Category("Food");
+        Transaction transaction2 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 27), "tsx2");
+        Transaction transaction3 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 28), "tsx3");
+        List<Transaction> transactionTests = List.of(transaction3, transaction2);
+        when(transactionRepository
+                .findByTransactionDateGreaterThanEqualOrderByTransactionDateDesc(
+                        LocalDate.of(2026, 11, 27)))
+                .thenReturn(transactionTests);
+
+
+        // when
+        List<Transaction> transactions = transactionService
+                .getTransactionsByDate(LocalDate.of(2026, 11, 27), null);
+
+        // then
+        assertThat(transactions).containsExactly(transaction3, transaction2);
+        verifyNoMoreInteractions(transactionRepository);
+    }
+
+    @Test
+    void getTransactionByDate_whenStartDateNull_returnsTransactionsUpToEndDate() {
+        // given
+        Category category = new Category("Food");
+        Transaction transaction2 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 26), "tsx2");
+        Transaction transaction3 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 27), "tsx3");
+        List<Transaction> transactionTests = List.of(transaction3, transaction2);
+        when(transactionRepository
+                .findByTransactionDateLessThanEqualOrderByTransactionDateDesc(
+                        LocalDate.of(2026, 11, 27)))
+                .thenReturn(transactionTests);
+
+
+        // when
+        List<Transaction> transactions = transactionService
+                .getTransactionsByDate(null, LocalDate.of(2026, 11, 27));
+
+        // then
+        assertThat(transactions).containsExactly(transaction3, transaction2);
+        verifyNoMoreInteractions(transactionRepository);
+    }
+
+    @Test
+    void getTransactionByDate_whenBothDate_returnsTransactionsBetweenStartToEnd() {
+        // given
+        Category category = new Category("Food");
+        Transaction transaction1 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 25), "tsx1");
+        Transaction transaction2 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 26), "tsx2");
+        Transaction transaction3 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 27), "tsx3");
+        List<Transaction> transactionTests = List.of(transaction3, transaction2, transaction1);
+        when(transactionRepository
+                .findByTransactionDateBetweenOrderByTransactionDateDesc(
+                        LocalDate.of(2026, 11, 25),
+                        LocalDate.of(2026, 11, 27)))
+                .thenReturn(transactionTests);
+
+
+        // when
+        List<Transaction> transactions = transactionService
+                .getTransactionsByDate(
+                        LocalDate.of(2026, 11, 25),
+                        LocalDate.of(2026, 11, 27)
+                );
+
+        // then
+        assertThat(transactions).containsExactly(transaction3, transaction2, transaction1);
+        verifyNoMoreInteractions(transactionRepository);
+    }
+
+    @Test
+    void deleteTransaction_whenTransactionExists_succeeds() {
+        // given
+        Category category = new Category("Food");
+        Transaction transaction1 = new Transaction(category, TransactionType.EXPENSE, new BigDecimal("1.00"),
+                LocalDate.of(2026, 11, 25), "tsx1");
+        when(transactionRepository.findById(1L))
+                .thenReturn(Optional.of(transaction1));
+
+        // when
+        transactionService.deleteTransactionById(1L);
+
+        // then
+        verify(transactionRepository).delete(transaction1);
+    }
+
+    @Test
+    void deleteTransaction_whenTransactionNotExists_throwsTransactionNotFoundException() {
+        // given
+        when(transactionRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> transactionService.deleteTransactionById(1L))
+                .isInstanceOf(TransactionNotFoundException.class)
+                .hasMessage("Transaction Not Found: " + 1L);
+        verifyNoMoreInteractions(transactionRepository); // check transactionRepository.delete() not called
     }
 }
